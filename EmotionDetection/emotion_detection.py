@@ -12,6 +12,9 @@ def emotion_detector(text_to_analyse):
     Sends text to the Watson NLP emotion analysis endpoint, parses the
     response, and returns the emotion scores along with the dominant emotion.
 
+    If the input text is blank, Watson NLP returns a 400 status code;
+    in that case, all values in the returned dictionary are None.
+
     Args:
         text_to_analyse (str): The text to analyze for emotion.
 
@@ -25,6 +28,7 @@ def emotion_detector(text_to_analyse):
                 'sadness': sadness_score,
                 'dominant_emotion': '<name of the dominant emotion>'
             }
+        or, for blank input (status_code 400), all values are None.
     """
 
     base_url = 'https://sn-watson-emotion.labs.skills.network'
@@ -33,6 +37,17 @@ def emotion_detector(text_to_analyse):
     input_json = {"raw_document": {"text": text_to_analyse}}
 
     response = requests.post(url, json=input_json, headers=headers, timeout=10)
+
+    # Watson NLP returns status_code 400 for empty input
+    if response.status_code == 400:
+        return {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None,
+        }
 
     response_dict = json.loads(response.text)
     emotion_scores = response_dict['emotionPredictions'][0]['emotion']
@@ -51,6 +66,7 @@ def emotion_detector(text_to_analyse):
         'sadness': sadness_score,
     }
     dominant_emotion = max(emotions, key=emotions.get)
+
     return {
         'anger': anger_score,
         'disgust': disgust_score,
