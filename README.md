@@ -1,3 +1,3 @@
-# Repository for final project
+# Repository for Final project
 
-Final Project: Emotion Detector
+Final project: Emotion Detector
